@@ -3,15 +3,25 @@
 该日志类可以把不同级别的日志输出到不同的日志文件中
 """
 
-import ujson
+import ujson, os, time, sys
 import json
 import logging
 from logging.handlers import RotatingFileHandler
 from logging.handlers import TimedRotatingFileHandler
 
-from mtp.util.common.datetool import curr_now_msec
-from mtp.util.json_helper.json_encoder import JSONEncoder
-from mtp.util.module import *
+def curr_now_msec(fmt="%Y-%m-%d %H:%M:%S"):
+    return time.strftime(fmt, time.localtime(float(time.time())))
+
+class JSONEncoder(json.JSONEncoder):
+    """
+    指定非内置 JSON serializable 的类型应该如何转换
+    """
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return float(o)
+        if isinstance(o, datetime.datetime):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 
 class TNLog(object):
@@ -37,8 +47,8 @@ class TNLog(object):
             'info': os.path.join(logpath, 'info/' + logname + '.info.log'),
             'warn': os.path.join(logpath, 'warn/' + logname + '.warn.log'),
             'error': os.path.join(logpath, 'error/' + logname + '.error.log'),
-            'customer': os.path.join(logpath, 'customer/' + logname + '.customer.log'),
-            'admin': os.path.join(logpath, 'admin/' + logname + '.admin.log')
+            #'customer': os.path.join(logpath, 'customer/' + logname + '.customer.log'),
+            #'admin': os.path.join(logpath, 'admin/' + logname + '.admin.log')
         }
 
         log_levels = self.logPath.keys()
@@ -231,3 +241,9 @@ class TNLog(object):
 
 
 LOG = TNLog()
+
+if __name__ == "__main__":
+    log = LOG
+    log.init(logname="test", logpath="./", log_level="INFO")
+    log.info({"123": "123"})
+    log.info(123)
