@@ -43,10 +43,10 @@ class TNLog(object):
         self.log_filesize = log_filesize
 
         self.logPath = {
-            'debug': os.path.join(logpath, 'debug/' + logname + '.debug.log'),
-            'info': os.path.join(logpath, 'info/' + logname + '.info.log'),
-            'warn': os.path.join(logpath, 'warn/' + logname + '.warn.log'),
-            'error': os.path.join(logpath, 'error/' + logname + '.error.log'),
+            'debug': os.path.join(logpath, logname + '.debug.log'),
+            'info': os.path.join(logpath, logname + '.info.log'),
+            'warn': os.path.join(logpath, logname + '.warn.log'),
+            'error': os.path.join(logpath, logname + '.error.log'),
             #'customer': os.path.join(logpath, 'customer/' + logname + '.customer.log'),
             #'admin': os.path.join(logpath, 'admin/' + logname + '.admin.log')
         }
