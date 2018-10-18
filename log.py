@@ -3,7 +3,7 @@
 该日志类可以把不同级别的日志输出到不同的日志文件中
 """
 
-import ujson, os, time, sys
+import os, time, sys
 import json
 import logging
 from logging.handlers import RotatingFileHandler
@@ -94,126 +94,19 @@ class TNLog(object):
             self.handlers[level].setFormatter(formatter)
             self.handlers[level].suffix = "%Y%m%d%H.log"
 
-    def out(self, _self=None, d={}, type="info"):
-
-        if type in ["warn", "record", "admin"]:
-            getattr(self, type)(_self, d)
-
-        elif type in ["info", "debug", "error"]:
-            getattr(self, type)(str(d))
-
-        else:
-            self.info(str(d))
-
     def info(self, message):
-        message=JSONEncoder().encode(message)
-        message = self.get_log_message("info", message)
         self.__loggers['info'].info(message, exc_info=0)
 
     def error(self, message):
-        message = self.get_log_message("error", message)
-        self.__loggers['error'].error(message, exc_info=1)
 
-    def warning(self, _self, dict={}):
-        self.__loggers['warn'].warning(self.info_header(_self, dict))
+        self.__loggers['error'].error(message, exc_info=0)
+
+    def warning(self, message):
+        self.__loggers['warn'].warning(message)
 
     def debug(self, message):
-        message = self.get_log_message("debug", message)
         self.__loggers['debug'].debug(message, exc_info=0)
 
-    def info_header(self, _self, d={}):
-        """
-        info日志输出
-        :param _self: 应用的self句柄
-        :param d: 需要打出的用户日志
-        :return:
-        """
-
-        # 用户所有输入的密码，不要在日志中出现
-        req_params = _self.request.arguments
-        if req_params and req_params.get("password", 0) != 0:
-            req_params["password"] = "xxxxxx"
-        if req_params and req_params.get("_password", 0) != 0:
-            req_params["_password"] = "xxxxxx"
-        if req_params and req_params.get("_repassword", 0) != 0:
-            req_params["_repassword"] = "xxxxxx"
-
-        # 用户头像记录用户id，头像数据不写入LOG
-        if req_params and req_params.get("imgData", 0) != 0:
-            req_params["imgData"] = str(_self.current_user.get('sysuser', mdict()).get('id', ''))
-
-        x_real_ip = _self.request.headers.get("X-Real-IP")
-
-        log_info_common = {
-            "wechat_type": str(_self.current_user.wechat.get('type', '0')),
-            "wechat_id": str(_self.current_user.wechat.get('id', '')),
-            "requester_id": {
-                "dquser_id": str(_self.current_user.get('sysuser', mdict()).get('id', '')),
-                "openid": _self.current_user.wxuser.get('openid', ''),
-                "viewer_id": _self.current_user.get('viewer', mdict()).get('idcode', ''),
-            },
-            "useragent": _self.request.headers.get('User-Agent'),
-            "referer":_self.request.headers.get("Referer"),
-            "remote_ip": x_real_ip or _self.request.remote_ip,
-            "req_type": _self.request.method,
-            "req_uri": _self.request.uri,
-            "req_params": req_params,
-            "session_id": _self.get_secure_cookie("session_id"),
-            "sys_user_cookie": _self.get_secure_cookie(const.SYS_USER_ID)
-        }
-        try:
-            d.update(log_info_common)
-        except Exception as e:
-            d = log_info_common
-
-        d.update({"status_code": str(_self._status_code)})
-
-        return JSONEncoder().encode(d)
-
-    def record(self, _self=None, dict={}):
-        """
-        记录customer的log信息
-        :param _self: 应用的self句柄
-        :param dict: 需要打印的用户日志
-        :return:
-        """
-        if _self:
-            self.__loggers['customer'].info(
-                json.dumps(self.info_header(_self, dict), ensure_ascii=False),
-                exc_info=0)
-        else:
-            self.__loggers['customer'].info(
-                json.dumps(dict, cls=JSONEncoder, ensure_ascii=False),
-                exc_info=0)
-
-    # 记录admin的log信息
-    def admin(self, _self, dict):
-
-        if not _self.current_user:
-            _self.current_user = mdict(_self.current_user)
-
-        x_real_ip = _self.request.headers.get("X-Real-IP")
-
-        log_info_common = {
-            "company_id": str(_self.current_user.account.company_id) or '-1',
-            "requester_id": {
-                "account_id": str(_self.current_user.account.id) or '-1'
-            },
-            "useragent": _self.request.headers['User-Agent'],
-            "referer": _self.request.headers.get("Referer"),
-            "remote_ip": x_real_ip or _self.request.remote_ip,
-            "req_type": _self.request.method,
-            "req_uri": _self.request.uri,
-            "req_params": _self.request.arguments
-        }
-        try:
-            dict.update(log_info_common)
-        except Exception as e:
-            dict = log_info_common
-
-        dict.update({"status_code": str(_self._status_code)})
-
-        self.__loggers['admin'].info(str(dict))
 
     def createHandlers(self):
         self.handlers = {}
@@ -231,19 +124,14 @@ class TNLog(object):
             self.handlers[level].setFormatter(formatter)
             self.handlers[level].suffix = "%Y%m%d%H%M%S.log"
 
-    def out(self, _self=None, d={}, type="info"):
-        if type in ["warning", "record", "admin"]:
-            getattr(self, type)(_self, d)
-        elif type in ["info", "debug", "critical", "error"]:
-            getattr(self, type)(str(d))
-        else:
-            self.info(str(d))
-
 
 LOG = TNLog()
 
 if __name__ == "__main__":
     log = LOG
-    log.init(logname="test", logpath="./", log_level="INFO")
+    log.init(logname="test", logpath="./", log_level="DEBUG")
     log.info({"123": "123"})
     log.info(123)
+    log.debug(123)
+    log.warning(123)
+    log.error(123)
