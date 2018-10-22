@@ -1,14 +1,16 @@
 from log import TNLog
+import unittest
 log = TNLog()
 log.init(logname="test", logpath="./", log_level="DEBUG")
 
-class Test():
-    def __init__(self):
-        log.info('Test ....')
 
-    def logTest(self):
+class Test(unittest.TestCase):
+
+    def test_01(self):
         log.info("123")
 
+    def test_02(self):
+        log.info('wewe')
+
 if __name__ == '__main__':
-    t = Test()
-    t.logTest()
+    unittest.main()
