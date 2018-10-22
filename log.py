@@ -89,12 +89,14 @@ class TNLog(object):
             else:
                 self.handlers[level] = RotatingFileHandler(path, maxBytes=self.log_filesize, backupCount=self.log_backcount)
 
-            formatter = logging.Formatter(self.log_format)
+            formatter = logging.Formatter("")
 
             self.handlers[level].setFormatter(formatter)
             self.handlers[level].suffix = "%Y%m%d%H.log"
 
     def info(self, message):
+        message = self.get_log_message('info',message)
+        print message
         self.__loggers['info'].info(message, exc_info=0)
 
     def error(self, message):
@@ -108,21 +110,21 @@ class TNLog(object):
         self.__loggers['debug'].debug(message, exc_info=0)
 
 
-    def createHandlers(self):
-        self.handlers = {}
-        logLevels = self.logPath.keys()
-        for level in logLevels:
-            path = os.path.abspath(self.logPath[level])
-            # not exists , create dir
-            if not os.path.exists(os.path.dirname(path)):
-                os.makedirs(os.path.dirname(path))
-            if level == 'customer' or level == 'admin':
-                self.handlers[level] = TimedRotatingFileHandler(path, 'M', 1, backupCount=self.log_backcount)
-            else:
-                self.handlers[level] = RotatingFileHandler(path, maxBytes=self.log_filesize, backupCount=self.log_backcount)
-            formatter = logging.Formatter(self.log_format)
-            self.handlers[level].setFormatter(formatter)
-            self.handlers[level].suffix = "%Y%m%d%H%M%S.log"
+    # def createHandlers(self):
+    #     self.handlers = {}
+    #     logLevels = self.logPath.keys()
+    #     for level in logLevels:
+    #         path = os.path.abspath(self.logPath[level])
+    #         # not exists , create dir
+    #         if not os.path.exists(os.path.dirname(path)):
+    #             os.makedirs(os.path.dirname(path))
+    #         if level == 'customer' or level == 'admin':
+    #             self.handlers[level] = TimedRotatingFileHandler(path, 'M', 1, backupCount=self.log_backcount)
+    #         else:
+    #             self.handlers[level] = RotatingFileHandler(path, maxBytes=self.log_filesize, backupCount=self.log_backcount)
+    #         formatter = logging.Formatter(self.log_format)
+    #         self.handlers[level].setFormatter(formatter)
+    #         self.handlers[level].suffix = "%Y%m%d%H%M%S.log"
 
 
 LOG = TNLog()
