@@ -99,13 +99,15 @@ class TNLog(object):
         self.__loggers['info'].info(message, exc_info=0)
 
     def error(self, message):
-
+        message = self.get_log_message('error',message)
         self.__loggers['error'].error(message, exc_info=0)
 
     def warning(self, message):
+        message = self.get_log_message('warn',message)
         self.__loggers['warn'].warning(message)
 
     def debug(self, message):
+        message = self.get_log_message('debug',message)
         self.__loggers['debug'].debug(message, exc_info=0)
 
 
