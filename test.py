@@ -6,8 +6,9 @@ class Test():
     def __init__(self):
         log.info('Test ....')
 
-    def logTest():
-        log
+    def logTest(self):
+        log.info("123")
 
 if __name__ == '__main__':
     t = Test()
+    t.logTest()

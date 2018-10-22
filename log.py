@@ -31,7 +31,7 @@ class TNLog(object):
     def init(self, logname='dq',
                         logpath='/tmp/',
                         log_level='INFO',
-                        log_format='%(asctime)s\t%(filename)s:%(lineno)s\t%(levelname)s\t%(message)s',
+                        log_format='%(asctime)s\t%(filename)s:%(lineno)s\t[%(levelname)s]\t%(message)s',
                         log_backcount=0,
                         log_filesize=10*1024*1024
     ):
@@ -96,7 +96,6 @@ class TNLog(object):
 
     def info(self, message):
         message = self.get_log_message('info',message)
-        print message
         self.__loggers['info'].info(message, exc_info=0)
 
     def error(self, message):
